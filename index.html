@@ -72,7 +72,22 @@ body {
 }.slogan {
   font-size: 13px; font-weight: 300;
   color: #bbb; letter-spacing: 0.04em;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+}
+.careers-btn {
+  display: inline-block;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--brand-cream);
+  background: linear-gradient(90deg, var(--brand-purple) 0%, var(--brand-red) 55%, var(--brand-orange) 100%);
+  padding: 13px 30px; border-radius: 999px;
+  text-decoration: none;
+  margin-bottom: 28px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.careers-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(48, 28, 87, 0.28);
 }
 .contact { font-size: 13px; color: #bbb; }
 .contact a { color: var(--brand-orange); text-decoration: none; transition: color 0.15s; }
@@ -97,6 +112,8 @@ body {
 <p class="agentic">but Agentic.</p>
 
 <p class="slogan">Are you ready to TAP your talent?</p>
+
+<a class="careers-btn" href="https://careers.tap3.co">View open positions</a>
 
 <p class="contact"><a href="mailto:info@tap3.co">info@tap3.co</a></p>
 
