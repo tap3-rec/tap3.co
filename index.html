@@ -7,6 +7,20 @@
 <meta name="description" content="TAP³ is a Swiss recruitment partner. Recruitment as a Service — but agentic. Human judgment, agentic speed.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;600;700&display=swap" rel="stylesheet">
+<script>
+// Theme boot — runs before paint so there is no flash of the wrong mode.
+// Order: localStorage → shared .tap3.co cookie (set by the app portal too)
+// → system preference.
+(function () {
+  var t = null;
+  try { t = localStorage.getItem('tap3-theme'); } catch (e) {}
+  if (t !== 'dark' && t !== 'light') {
+    var m = document.cookie.match(/(?:^|;\s*)tap3-theme=(dark|light)/);
+    t = m ? m[1] : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -14,35 +28,79 @@
   --brand-orange: #EB6320;
   --brand-red: #DF3912;
   --brand-cream: #F9F6F1;
+
+  /* Themable tokens — light (mirrors the app's light palette) */
+  --bg: var(--brand-cream);
+  --surface: #ffffff;
   --ink: #1a1a1a;
+  --mid: #555;
   --muted: #999;
   --faint: #bbb;
+  --line: rgba(48, 28, 87, 0.08);
+  --accent-purple: var(--brand-purple);
+  --accent-red: var(--brand-red);
+  --nav-glass: rgba(249, 246, 241, 0.88);
+  --logo-purple: #301c57;
+  --logo-red: #DF3912;
+  --logo-orange: #EB6320;
+}
+[data-theme="dark"] {
+  /* Dark — same tones as the app (bg #141413 / surface #1e1e1c) */
+  --bg: #141413;
+  --surface: #1e1e1c;
+  --ink: #ece9e2;
+  --mid: #b3b0aa;
+  --muted: #8a8782;
+  --faint: #6f6c66;
+  --line: rgba(255, 255, 255, 0.08);
+  --accent-purple: #a78bfa;
+  --accent-red: #f0583a;
+  --nav-glass: rgba(20, 20, 19, 0.85);
+  --logo-purple: #a78bfa;
+  --logo-red: #e8845a;
+  --logo-orange: #EB6320;
 }
 html { scroll-behavior: smooth; }
 body {
   font-family: 'Montserrat', -apple-system, sans-serif;
-  background: var(--brand-cream);
+  background: var(--bg);
   color: var(--ink);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+/* Logo gradients — stops swap with theme via CSS vars. */
+.logo-s1 { stop-color: var(--logo-purple); }
+.logo-s2 { stop-color: var(--logo-red); }
+.logo-s3 { stop-color: var(--logo-orange); }
 
 /* ── Nav ─────────────────────────────────────────── */
 .nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 28px;
-  background: color-mix(in srgb, var(--brand-cream) 88%, transparent);
+  background: var(--nav-glass);
   backdrop-filter: blur(8px);
 }
 .nav-logo { display: flex; align-items: center; text-decoration: none; }
 .nav-logo svg { width: 84px; height: auto; display: block; }
+.nav-right { display: flex; gap: 26px; align-items: center; }
 .nav-links { display: flex; gap: 26px; align-items: center; }
 .nav-links a {
   font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--brand-purple); text-decoration: none; transition: color 0.15s;
+  color: var(--accent-purple); text-decoration: none; transition: color 0.15s;
 }
 .nav-links a:hover { color: var(--brand-orange); }
 .nav-links a.careers { color: var(--brand-orange); }
-.nav-links a.careers:hover { color: var(--brand-red); }
+.nav-links a.careers:hover { color: var(--accent-red); }
+.theme-toggle {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px; line-height: 0;
+  transition: color 0.15s;
+}
+.theme-toggle:hover { color: var(--brand-orange); }
+.theme-toggle svg { width: 16px; height: 16px; }
+[data-theme="light"] .icon-sun { display: none; }
+[data-theme="dark"] .icon-moon { display: none; }
 @media (max-width: 720px) { .nav-links a:not(.careers) { display: none; } }
 
 /* ── Hero (original teaser) ──────────────────────── */
@@ -64,10 +122,10 @@ body {
   align-items: center;
   width: 100%; max-width: 600px;
 }
-.tag-t { text-align: right; color: var(--brand-purple); }
+.tag-t { text-align: right; color: var(--accent-purple); }
 .tag-a {
   text-align: center;
-  background: linear-gradient(90deg, var(--brand-purple) 0%, var(--brand-red) 100%);
+  background: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-red) 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 .tag-p { text-align: left; color: var(--brand-orange); }
@@ -76,7 +134,7 @@ body {
 .rotate-word.fade-in { opacity: 1; transform: translateY(0); }
 .divider {
   width: 60px; height: 2px;
-  background: linear-gradient(90deg, var(--brand-purple), var(--brand-red), var(--brand-orange));
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-red), var(--brand-orange));
   margin: 0 auto 32px; border-radius: 1px;
 }
 .message {
@@ -87,7 +145,7 @@ body {
 .agentic {
   font-size: 14px; font-weight: 300;
   letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--brand-purple); font-style: italic;
+  color: var(--accent-purple); font-style: italic;
   margin-bottom: 48px;
 }
 .slogan {
@@ -107,15 +165,15 @@ body {
 }
 .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(48, 28, 87, 0.28); }
 .btn.ghost {
-  color: var(--brand-purple);
+  color: var(--accent-purple);
   background: none;
-  border: 1.5px solid var(--brand-purple);
+  border: 1.5px solid var(--accent-purple);
 }
 .btn.ghost:hover { box-shadow: 0 6px 18px rgba(48, 28, 87, 0.15); }
 .hero .btn { margin-bottom: 28px; }
 .contact { font-size: 13px; color: var(--faint); }
 .contact a { color: var(--brand-orange); text-decoration: none; transition: color 0.15s; }
-.contact a:hover { color: var(--brand-purple); }
+.contact a:hover { color: var(--accent-purple); }
 .scroll-hint {
   margin-top: 56px; font-size: 20px; color: var(--faint);
   text-decoration: none; animation: bob 2.2s ease-in-out infinite;
@@ -124,26 +182,26 @@ body {
 
 /* ── Sections ────────────────────────────────────── */
 .section { max-width: 820px; margin: 0 auto; padding: 96px 28px; text-align: center; }
-.section + .section { border-top: 1px solid rgba(48, 28, 87, 0.08); }
+.section + .section { border-top: 1px solid var(--line); }
 .kicker {
   font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
   color: var(--brand-orange); margin-bottom: 18px;
 }
 .section h2 {
   font-size: 28px; font-weight: 600; letter-spacing: 0.01em;
-  color: var(--brand-purple); margin-bottom: 22px; line-height: 1.3;
+  color: var(--accent-purple); margin-bottom: 22px; line-height: 1.3;
 }
 .section p.lead {
   font-size: 15px; font-weight: 300; line-height: 1.9;
-  color: #555; max-width: 620px; margin: 0 auto 18px;
+  color: var(--mid); max-width: 620px; margin: 0 auto 18px;
 }
 .fineprint { font-size: 12px; font-weight: 300; color: var(--muted); letter-spacing: 0.04em; margin-top: 26px; }
 
 .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 48px; }
 @media (max-width: 720px) { .pillars { grid-template-columns: 1fr; } }
 .pillar {
-  background: #fff;
-  border: 1px solid rgba(48, 28, 87, 0.07);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 14px; padding: 30px 24px;
   text-align: left;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -151,29 +209,29 @@ body {
 .pillar:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(48, 28, 87, 0.08); }
 .pillar .num {
   font-size: 12px; font-weight: 700; letter-spacing: 0.18em;
-  background: linear-gradient(90deg, var(--brand-purple), var(--brand-red), var(--brand-orange));
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-red), var(--brand-orange));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   margin-bottom: 12px;
 }
 .pillar h3 {
   font-size: 15px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--brand-purple); margin-bottom: 10px;
+  color: var(--accent-purple); margin-bottom: 10px;
 }
-.pillar p { font-size: 13.5px; font-weight: 300; line-height: 1.75; color: #666; }
+.pillar p { font-size: 13.5px; font-weight: 300; line-height: 1.75; color: var(--mid); }
 
 .audience { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 48px; }
 @media (max-width: 720px) { .audience { grid-template-columns: 1fr; } }
 .aud-card {
-  background: #fff;
-  border: 1px solid rgba(48, 28, 87, 0.07);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 14px; padding: 40px 30px;
   display: flex; flex-direction: column; align-items: center; gap: 16px;
 }
 .aud-card h3 {
   font-size: 15px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--brand-purple);
+  color: var(--accent-purple);
 }
-.aud-card p { font-size: 13.5px; font-weight: 300; line-height: 1.75; color: #666; max-width: 300px; }
+.aud-card p { font-size: 13.5px; font-weight: 300; line-height: 1.75; color: var(--mid); max-width: 300px; }
 .aud-card .btn { margin-top: 8px; font-size: 12px; padding: 11px 26px; }
 
 /* fade-up on scroll */
@@ -182,7 +240,7 @@ body {
 
 /* ── Footer ─────────────────────────────────────── */
 footer {
-  border-top: 1px solid rgba(48, 28, 87, 0.08);
+  border-top: 1px solid var(--line);
   padding: 46px 28px 54px; text-align: center;
 }
 footer .divider { margin-bottom: 26px; }
@@ -190,7 +248,7 @@ footer .f-brand { margin-bottom: 14px; }
 footer .f-brand svg { width: 120px; height: auto; }
 footer p { font-size: 12px; font-weight: 300; color: var(--faint); line-height: 1.9; }
 footer a { color: var(--brand-orange); text-decoration: none; }
-footer a:hover { color: var(--brand-purple); }
+footer a:hover { color: var(--accent-purple); }
 
 @media (max-width: 600px) {
   .logo svg { width: 200px; }
@@ -204,20 +262,26 @@ footer a:hover { color: var(--brand-purple); }
 
 <nav class="nav">
   <a class="nav-logo" href="#top" aria-label="TAP³ — back to top">
-    <svg viewBox="150 265 725 240"><defs><linearGradient id="grad-nav" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#301c57"/><stop offset="18%" stop-color="#301c57"/><stop offset="45%" stop-color="#DF3912"/><stop offset="65%" stop-color="#EB6320"/><stop offset="100%" stop-color="#EB6320"/></linearGradient></defs><path fill="url(#grad-nav)" d="m769.61 268.87v10.551h79.441l-41.584 46.238v8.3789h11.793c13.033 0 22.653 2.4819 29.48 7.1367 6.5167 4.9651 9.9297 11.483 9.9297 19.861 0 8.6889-3.4132 15.205-10.24 19.859-6.827 4.9651-16.447 7.1367-29.48 7.1367-9.9302 0-19.24-1.2406-27.309-4.3438-8.0683-2.7929-14.583-6.5171-18.928-11.172l-5.5859 9.3105c4.6548 4.9651 11.792 8.9984 21.102 12.102 9.3096 3.1032 19.549 4.6562 30.721 4.6562 16.447 0 29.171-3.4152 38.17-10.242 8.9993-6.827 13.654-16.135 13.654-27.307 0-10.861-4.344-19.552-12.723-26.379-8.3786-6.5167-20.172-9.9299-35.688-10.24l42.824-47.479v-8.0684zm-616.38 13.03v14.275h78.201v202.95h15.826v-202.95h78.201v-14.28zm263.88 0-99.924 217.22h17.068l90.613-199.85 90.924 199.85h17.068l-99.94-217.22zm155.18 0v14.275h77.891c22.964 0 40.652 5.2751 53.064 15.516 12.102 10.241 18.311 24.826 18.311 43.445 0 18.93-6.2081 33.515-18.311 43.445-12.413 10.241-30.101 15.205-53.064 15.205h-77.891v85.338h15.826v-71.062h62.064c27.308 0 48.72-6.2068 64.236-19.24s23.273-30.722 23.273-53.686c0-22.653-7.7575-40.652-23.273-53.686-15.516-13.033-36.928-19.551-64.236-19.551z"/></svg>
+    <svg viewBox="150 265 725 240"><defs><linearGradient id="grad-nav" x1="0%" y1="0%" x2="100%" y2="0%"><stop class="logo-s1" offset="0%"/><stop class="logo-s1" offset="18%"/><stop class="logo-s2" offset="45%"/><stop class="logo-s3" offset="65%"/><stop class="logo-s3" offset="100%"/></linearGradient></defs><path fill="url(#grad-nav)" d="m769.61 268.87v10.551h79.441l-41.584 46.238v8.3789h11.793c13.033 0 22.653 2.4819 29.48 7.1367 6.5167 4.9651 9.9297 11.483 9.9297 19.861 0 8.6889-3.4132 15.205-10.24 19.859-6.827 4.9651-16.447 7.1367-29.48 7.1367-9.9302 0-19.24-1.2406-27.309-4.3438-8.0683-2.7929-14.583-6.5171-18.928-11.172l-5.5859 9.3105c4.6548 4.9651 11.792 8.9984 21.102 12.102 9.3096 3.1032 19.549 4.6562 30.721 4.6562 16.447 0 29.171-3.4152 38.17-10.242 8.9993-6.827 13.654-16.135 13.654-27.307 0-10.861-4.344-19.552-12.723-26.379-8.3786-6.5167-20.172-9.9299-35.688-10.24l42.824-47.479v-8.0684zm-616.38 13.03v14.275h78.201v202.95h15.826v-202.95h78.201v-14.28zm263.88 0-99.924 217.22h17.068l90.613-199.85 90.924 199.85h17.068l-99.94-217.22zm155.18 0v14.275h77.891c22.964 0 40.652 5.2751 53.064 15.516 12.102 10.241 18.311 24.826 18.311 43.445 0 18.93-6.2081 33.515-18.311 43.445-12.413 10.241-30.101 15.205-53.064 15.205h-77.891v85.338h15.826v-71.062h62.064c27.308 0 48.72-6.2068 64.236-19.24s23.273-30.722 23.273-53.686c0-22.653-7.7575-40.652-23.273-53.686-15.516-13.033-36.928-19.551-64.236-19.551z"/></svg>
   </a>
-  <div class="nav-links">
-    <a href="#what">What we do</a>
-    <a href="#how">How it works</a>
-    <a href="#companies">Companies</a>
-    <a href="#candidates">Candidates</a>
-    <a class="careers" href="https://careers.tap3.co">Careers ↗</a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#what">What we do</a>
+      <a href="#how">How it works</a>
+      <a href="#companies">Companies</a>
+      <a href="#candidates">Candidates</a>
+      <a class="careers" href="https://careers.tap3.co">Careers ↗</a>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
   </div>
 </nav>
 
 <header class="hero" id="top">
   <div class="logo">
-    <svg viewBox="150 265 725 240" aria-label="TAP³"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#301c57"/><stop offset="18%" stop-color="#301c57"/><stop offset="45%" stop-color="#DF3912"/><stop offset="65%" stop-color="#EB6320"/><stop offset="100%" stop-color="#EB6320"/></linearGradient></defs><path fill="url(#grad)" d="m769.61 268.87v10.551h79.441l-41.584 46.238v8.3789h11.793c13.033 0 22.653 2.4819 29.48 7.1367 6.5167 4.9651 9.9297 11.483 9.9297 19.861 0 8.6889-3.4132 15.205-10.24 19.859-6.827 4.9651-16.447 7.1367-29.48 7.1367-9.9302 0-19.24-1.2406-27.309-4.3438-8.0683-2.7929-14.583-6.5171-18.928-11.172l-5.5859 9.3105c4.6548 4.9651 11.792 8.9984 21.102 12.102 9.3096 3.1032 19.549 4.6562 30.721 4.6562 16.447 0 29.171-3.4152 38.17-10.242 8.9993-6.827 13.654-16.135 13.654-27.307 0-10.861-4.344-19.552-12.723-26.379-8.3786-6.5167-20.172-9.9299-35.688-10.24l42.824-47.479v-8.0684zm-616.38 13.03v14.275h78.201v202.95h15.826v-202.95h78.201v-14.28zm263.88 0-99.924 217.22h17.068l90.613-199.85 90.924 199.85h17.068l-99.94-217.22zm155.18 0v14.275h77.891c22.964 0 40.652 5.2751 53.064 15.516 12.102 10.241 18.311 24.826 18.311 43.445 0 18.93-6.2081 33.515-18.311 43.445-12.413 10.241-30.101 15.205-53.064 15.205h-77.891v85.338h15.826v-71.062h62.064c27.308 0 48.72-6.2068 64.236-19.24s23.273-30.722 23.273-53.686c0-22.653-7.7575-40.652-23.273-53.686-15.516-13.033-36.928-19.551-64.236-19.551z"/></svg>
+    <svg viewBox="150 265 725 240" aria-label="TAP³"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop class="logo-s1" offset="0%"/><stop class="logo-s1" offset="18%"/><stop class="logo-s2" offset="45%"/><stop class="logo-s3" offset="65%"/><stop class="logo-s3" offset="100%"/></linearGradient></defs><path fill="url(#grad)" d="m769.61 268.87v10.551h79.441l-41.584 46.238v8.3789h11.793c13.033 0 22.653 2.4819 29.48 7.1367 6.5167 4.9651 9.9297 11.483 9.9297 19.861 0 8.6889-3.4132 15.205-10.24 19.859-6.827 4.9651-16.447 7.1367-29.48 7.1367-9.9302 0-19.24-1.2406-27.309-4.3438-8.0683-2.7929-14.583-6.5171-18.928-11.172l-5.5859 9.3105c4.6548 4.9651 11.792 8.9984 21.102 12.102 9.3096 3.1032 19.549 4.6562 30.721 4.6562 16.447 0 29.171-3.4152 38.17-10.242 8.9993-6.827 13.654-16.135 13.654-27.307 0-10.861-4.344-19.552-12.723-26.379-8.3786-6.5167-20.172-9.9299-35.688-10.24l42.824-47.479v-8.0684zm-616.38 13.03v14.275h78.201v202.95h15.826v-202.95h78.201v-14.28zm263.88 0-99.924 217.22h17.068l90.613-199.85 90.924 199.85h17.068l-99.94-217.22zm155.18 0v14.275h77.891c22.964 0 40.652 5.2751 53.064 15.516 12.102 10.241 18.311 24.826 18.311 43.445 0 18.93-6.2081 33.515-18.311 43.445-12.413 10.241-30.101 15.205-53.064 15.205h-77.891v85.338h15.826v-71.062h62.064c27.308 0 48.72-6.2068 64.236-19.24s23.273-30.722 23.273-53.686c0-22.653-7.7575-40.652-23.273-53.686-15.516-13.033-36.928-19.551-64.236-19.551z"/></svg>
   </div>
   <div class="tagline"><span class="tag-t">Talent</span><span class="tag-a rotate-word fade-in" id="w-a">Acquisition</span><span class="tag-p rotate-word fade-in" id="w-p">Partner</span></div>
 
@@ -282,13 +346,30 @@ footer a:hover { color: var(--brand-purple); }
 
 <footer>
   <div class="divider"></div>
-  <p class="f-brand"><svg viewBox="150 265 725 240" aria-label="TAP³"><defs><linearGradient id="grad-foot" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#301c57"/><stop offset="18%" stop-color="#301c57"/><stop offset="45%" stop-color="#DF3912"/><stop offset="65%" stop-color="#EB6320"/><stop offset="100%" stop-color="#EB6320"/></linearGradient></defs><path fill="url(#grad-foot)" d="m769.61 268.87v10.551h79.441l-41.584 46.238v8.3789h11.793c13.033 0 22.653 2.4819 29.48 7.1367 6.5167 4.9651 9.9297 11.483 9.9297 19.861 0 8.6889-3.4132 15.205-10.24 19.859-6.827 4.9651-16.447 7.1367-29.48 7.1367-9.9302 0-19.24-1.2406-27.309-4.3438-8.0683-2.7929-14.583-6.5171-18.928-11.172l-5.5859 9.3105c4.6548 4.9651 11.792 8.9984 21.102 12.102 9.3096 3.1032 19.549 4.6562 30.721 4.6562 16.447 0 29.171-3.4152 38.17-10.242 8.9993-6.827 13.654-16.135 13.654-27.307 0-10.861-4.344-19.552-12.723-26.379-8.3786-6.5167-20.172-9.9299-35.688-10.24l42.824-47.479v-8.0684zm-616.38 13.03v14.275h78.201v202.95h15.826v-202.95h78.201v-14.28zm263.88 0-99.924 217.22h17.068l90.613-199.85 90.924 199.85h17.068l-99.94-217.22zm155.18 0v14.275h77.891c22.964 0 40.652 5.2751 53.064 15.516 12.102 10.241 18.311 24.826 18.311 43.445 0 18.93-6.2081 33.515-18.311 43.445-12.413 10.241-30.101 15.205-53.064 15.205h-77.891v85.338h15.826v-71.062h62.064c27.308 0 48.72-6.2068 64.236-19.24s23.273-30.722 23.273-53.686c0-22.653-7.7575-40.652-23.273-53.686-15.516-13.033-36.928-19.551-64.236-19.551z"/></svg></p>
+  <p class="f-brand"><svg viewBox="150 265 725 240" aria-label="TAP³"><defs><linearGradient id="grad-foot" x1="0%" y1="0%" x2="100%" y2="0%"><stop class="logo-s1" offset="0%"/><stop class="logo-s1" offset="18%"/><stop class="logo-s2" offset="45%"/><stop class="logo-s3" offset="65%"/><stop class="logo-s3" offset="100%"/></linearGradient></defs><path fill="url(#grad-foot)" d="m769.61 268.87v10.551h79.441l-41.584 46.238v8.3789h11.793c13.033 0 22.653 2.4819 29.48 7.1367 6.5167 4.9651 9.9297 11.483 9.9297 19.861 0 8.6889-3.4132 15.205-10.24 19.859-6.827 4.9651-16.447 7.1367-29.48 7.1367-9.9302 0-19.24-1.2406-27.309-4.3438-8.0683-2.7929-14.583-6.5171-18.928-11.172l-5.5859 9.3105c4.6548 4.9651 11.792 8.9984 21.102 12.102 9.3096 3.1032 19.549 4.6562 30.721 4.6562 16.447 0 29.171-3.4152 38.17-10.242 8.9993-6.827 13.654-16.135 13.654-27.307 0-10.861-4.344-19.552-12.723-26.379-8.3786-6.5167-20.172-9.9299-35.688-10.24l42.824-47.479v-8.0684zm-616.38 13.03v14.275h78.201v202.95h15.826v-202.95h78.201v-14.28zm263.88 0-99.924 217.22h17.068l90.613-199.85 90.924 199.85h17.068l-99.94-217.22zm155.18 0v14.275h77.891c22.964 0 40.652 5.2751 53.064 15.516 12.102 10.241 18.311 24.826 18.311 43.445 0 18.93-6.2081 33.515-18.311 43.445-12.413 10.241-30.101 15.205-53.064 15.205h-77.891v85.338h15.826v-71.062h62.064c27.308 0 48.72-6.2068 64.236-19.24s23.273-30.722 23.273-53.686c0-22.653-7.7575-40.652-23.273-53.686-15.516-13.033-36.928-19.551-64.236-19.551z"/></svg></p>
   <p>Talent · Acquisition · Partner</p>
   <p><a href="mailto:info@tap3.co">info@tap3.co</a></p>
   <p>© 2026 TAP3 Recruitment Services</p>
 </footer>
 
 <script>
+// ── Theme toggle — persists to localStorage + the shared .tap3.co cookie
+// (the app portal reads the same cookie, so the choice carries across
+// tap3.co ⇄ careers.tap3.co / app.tap3.co).
+function persistTheme(t) {
+  try { localStorage.setItem('tap3-theme', t); } catch (e) {}
+  try {
+    var domain = location.hostname.endsWith('tap3.co') ? '; domain=.tap3.co' : '';
+    document.cookie = 'tap3-theme=' + t + '; path=/; max-age=31536000; SameSite=Lax' + domain;
+  } catch (e) {}
+}
+function toggleTheme() {
+  var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', cur);
+  persistTheme(cur);
+}
+
+// ── Rotating tagline words
 const aWords = ['Acquisition', 'Automation', 'Architecture'];
 const pWords = ['Partner', 'Protocol', 'Platform', 'Podcast', 'Practice', 'Pipeline', 'Playbook', 'Process', 'Positioning'];
 let aIdx = 0, pIdx = 0;
